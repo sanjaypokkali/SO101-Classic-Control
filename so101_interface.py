@@ -225,8 +225,7 @@ class SO101Interface():
             q_interp = q_curr + alpha * q_diff
             q_deg = np.degrees(q_interp)
             cmd = {name: float(q_deg[j]) for j, name in enumerate(self.motor_names)}
-            with self._lock:
-                self.bus.sync_write("Goal_Position", cmd)
+            self.bus.sync_write("Goal_Position", cmd)
             time.sleep(self._control_dt)
 
     def set_joint_positions(self, positions: list[float], duration: float = 2.0) -> bool:
