@@ -9,9 +9,9 @@ class SO101Interface():
     def __init__(
         self,
         port: str = "/dev/ttyUSB0",
-        urdf_path: str = "dimos/hardware/manipulators/so101/urdf/so101_new_calib.urdf",
+        urdf_path: str = "./urdf/so101_new_calib.urdf",
         ee_link_name: str = "gripper_frame_link",
-        calibration_path: str = "dimos/hardware/manipulators/so101/calibration/so101_arm.json",
+        calibration_path: str = "./calibration/so101_arm.json",
     ):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.port = port
@@ -23,6 +23,10 @@ class SO101Interface():
 
         self._connected = False
         self._enabled = False
+
+        self.joint_offsets_deg = np.array(
+            [0, 0.26373626, 2.59340659, 0.65934066, 0.21978022], dtype=float
+        )
 
         # Motor configuration: 5 DOF arm + 1 gripper
         self.motor_names = [
@@ -227,6 +231,7 @@ class SO101Interface():
             cmd = {name: float(q_deg[j]) for j, name in enumerate(self.motor_names)}
             self.bus.sync_write("Goal_Position", cmd)
             time.sleep(self._control_dt)
+        return False
 
     def set_joint_positions(self, positions: list[float], duration: float = 2.0) -> bool:
         """Move joints to target position.
