@@ -15,6 +15,8 @@ Currently has support for:
 pip install -e .
 ```
 
+Or you can just add this repo to your project and use it as is!
+
 ## Usage
 
 Before first use (or if motors feel off), run LeRobot's calibration and copy over the calibration file to so101_control/calibration/so101_arm.json
