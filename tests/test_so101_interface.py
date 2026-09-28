@@ -11,7 +11,7 @@ import unittest
 import numpy as np
 import pinocchio as pin
 
-from so101_interface import SO101Interface
+from so101_control import SO101Interface
 
 
 class TestWithoutHardware(unittest.TestCase):

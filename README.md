@@ -8,3 +8,34 @@ Currently has support for:
 -> Joint Position Control
 
 -> Cartesian Position Control
+
+## Install
+
+```bash
+pip install -e .
+```
+
+## Usage
+
+Before first use (or if motors feel off), run LeRobot's calibration and copy over the calibration file to so101_control/calibration/so101_arm.json
+
+```bash
+lerobot-calibrate --robot.type=so101_follower --robot.port=/dev/ttyUSB0 --robot.id=so101_arm
+```
+
+```python
+from so101_control import SO101Interface
+
+arm = SO101Interface(port="/dev/ttyUSB0")
+arm.connect()
+
+arm.set_joint_positions([0.0, 0.0, 0.0, 0.0, 0.0])
+arm.set_eef_pose([0.3, 0.0, 0.2, 0.0, 0.0, 0.0])  # x, y, z, roll, pitch, yaw
+arm.set_gripper_position(0.05)
+```
+
+## Tests
+
+```bash
+python3 -m unittest discover -s tests -p "test_so101_interface.py" -v
+```

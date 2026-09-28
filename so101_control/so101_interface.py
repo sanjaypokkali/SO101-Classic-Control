@@ -1,19 +1,26 @@
 import logging
 import json
 import time
+from pathlib import Path
+
 import numpy as np
 import pinocchio as pin
-from kinematics import Kinematics
 from lerobot.motors import Motor, MotorCalibration, MotorNormMode
 from lerobot.motors.feetech import FeetechMotorsBus, OperatingMode
+
+from .kinematics import Kinematics
+
+PACKAGE_DIR = Path(__file__).parent
+DEFAULT_URDF_PATH = PACKAGE_DIR / "urdf" / "so101_new_calib.urdf"
+DEFAULT_CALIBRATION_PATH = PACKAGE_DIR / "calibration" / "so101_arm.json"
 
 class SO101Interface():
     def __init__(
         self,
         port: str = "/dev/ttyUSB0",
-        urdf_path: str = "./urdf/so101_new_calib.urdf",
+        urdf_path: str | Path = DEFAULT_URDF_PATH,
         ee_link_name: str = "gripper_frame_link",
-        calibration_path: str = "./calibration/so101_arm.json",
+        calibration_path: str | Path = DEFAULT_CALIBRATION_PATH,
     ):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.port = port
@@ -50,7 +57,7 @@ class SO101Interface():
         self.gripper_max_open_m = 0.1
         self._control_dt = 0.02
 
-        self.kinematics = Kinematics()
+        self.kinematics = Kinematics(urdf_path=self.urdf_path, ee_link_name=self.ee_link_name)
 
     # ============= Connection Management =============
     def _load_calibration(self, calibration_path: str = "") -> dict[str, MotorCalibration]:

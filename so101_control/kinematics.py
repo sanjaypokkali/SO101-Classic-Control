@@ -1,10 +1,15 @@
+from pathlib import Path
+
 import numpy as np
 import pinocchio as pin
 
+PACKAGE_DIR = Path(__file__).parent
+DEFAULT_URDF_PATH = PACKAGE_DIR / "urdf" / "so101_new_calib.urdf"
+
 class Kinematics():
-    def __init__(self):
-        self.urdf = "urdf/so101_new_calib.urdf"
-        self.eef_link_name = "gripper_frame_link"
+    def __init__(self, urdf_path: str | Path = DEFAULT_URDF_PATH, ee_link_name: str = "gripper_frame_link"):
+        self.urdf = str(urdf_path)
+        self.eef_link_name = ee_link_name
         self.model = pin.buildModelFromUrdf(self.urdf)
         self.data = self.model.createData()
         self.eef_id = self.model.getFrameId(self.eef_link_name)
