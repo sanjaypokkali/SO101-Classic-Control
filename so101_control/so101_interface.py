@@ -34,7 +34,7 @@ class SO101Interface():
         self._enabled = False
 
         self.joint_offsets_deg = np.array(
-            [0, 0.26373626, 2.59340659, 0.65934066, 0.21978022], dtype=float
+            [0, 0, 0, 0, 0], dtype=float
         )
 
         # Motor configuration: 5 DOF arm + 1 gripper
