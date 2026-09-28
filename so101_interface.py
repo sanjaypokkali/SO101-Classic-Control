@@ -2,6 +2,8 @@ import logging
 import json
 import time
 import numpy as np
+import pinocchio as pin
+from kinematics import Kinematics
 from lerobot.motors import Motor, MotorCalibration, MotorNormMode
 from lerobot.motors.feetech import FeetechMotorsBus, OperatingMode
 
@@ -47,6 +49,8 @@ class SO101Interface():
         }
         self.gripper_max_open_m = 0.1
         self._control_dt = 0.02
+
+        self.kinematics = Kinematics()
 
     # ============= Connection Management =============
     def _load_calibration(self, calibration_path: str = "") -> dict[str, MotorCalibration]:
@@ -245,6 +249,36 @@ class SO101Interface():
             return False
 
         return self.move_ptp(positions, duration)
+    
+    # ============= Cartesion Control Methods =============
+    def get_eef_pose(self) -> np.ndarray:
+        """
+        Get end effector pose as a 4x4 homogeneous transform matrix.
+
+        Args:
+            None
+        """
+        eef_pose = self.kinematics.fk(self.get_joint_positions() + [0.0])
+        return eef_pose.homogeneous
+
+    def set_eef_pose(self, target_pose: list[float]) -> bool:
+        """
+        Move end effector to a target pose.
+
+        Args:
+            target_pose: [x, y, z, roll, pitch, yaw] in meters/radians
+        """
+        xyz = np.asarray(target_pose[:3], dtype=float)
+        rpy = np.asarray(target_pose[3:], dtype=float)
+        target_se3 = pin.SE3(pin.rpy.rpyToMatrix(rpy), xyz)
+
+        curr_joint_angles = self.get_joint_positions() + [0.0]
+        ik_joint_angles = self.kinematics.ik(curr_joint_angles, target_se3)
+        arm_joint_angles = ik_joint_angles[: len(self.motor_names)]
+        if self.set_joint_positions(arm_joint_angles):
+            return True
+        return False
+
 
     # ============= Gripper Methods =============
     def set_gripper_position(self, position: float) -> bool:
